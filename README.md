@@ -263,13 +263,13 @@ The following outputs are exported:
 
 Description: The URI of the Dev Center.
 
-### <a name="output_id"></a> [id](#output\_id)
-
-Description: value of the resource id
-
 ### <a name="output_resource"></a> [resource](#output\_resource)
 
 Description: This is the full output for the resource.
+
+### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
+
+Description: value of the resource id
 
 ## Modules
 
