@@ -3,7 +3,7 @@ output "dev_center_uri" {
   value       = azurerm_dev_center.this.dev_center_uri
 }
 
-output "id" {
+output "resource_id" {
   description = "value of the resource id"
   value       = azurerm_dev_center.this.id
 }
