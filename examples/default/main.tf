@@ -18,8 +18,7 @@ terraform {
 
 provider "azurerm" {
   features {}
-  subscription_id = data.azurerm_client_config.this.subscription_id
-  tenant_id       = data.azurerm_client_config.this.tenant_id
+  subscription_id = "/subscriptions/${data.azurerm_client_config.this.subscription_id}"
 }
 
 
