@@ -24,7 +24,7 @@ terraform {
 
 provider "azurerm" {
   features {}
-  subscription_id = "0ec38a31-9a35-44fe-ac59-8347ac564cef"
+  #subscription_id = "xxxxx-xxxx-xxxx-xxxx-xxxxx"
 }
 
 
@@ -84,7 +84,7 @@ module "dc" {
   location            = azurerm_resource_group.this.location
   resource_group_name = azurerm_resource_group.this.name
   enable_telemetry    = var.enable_telemetry
-  dev_center_name     = "devcenter-eus-001"
+  dev_center_name     = "devcenter-001"
 }
 ```
 
