@@ -24,7 +24,8 @@ terraform {
 
 provider "azurerm" {
   features {}
-  #subscription_id = "xxxxx-xxxx-xxxx-xxxx-xxxxx"
+  subscription_id = data.azurerm_client_config.this.subscription_id
+  tenant_id       = data.azurerm_client_config.this.tenant_id
 }
 
 
