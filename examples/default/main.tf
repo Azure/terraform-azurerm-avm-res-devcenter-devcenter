@@ -20,6 +20,7 @@ provider "azurerm" {
   features {}
   subscription_id = "xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
   use_cli         = true
+  use_msi         = false
 }
 
 
