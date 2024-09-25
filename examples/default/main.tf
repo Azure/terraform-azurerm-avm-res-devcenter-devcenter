@@ -79,4 +79,6 @@ module "dc" {
   resource_group_name = azurerm_resource_group.this.name
   enable_telemetry    = var.enable_telemetry
   dev_center_name     = "devcenter-001"
+
+  depends_on = [azapi_resource_action.resource_provider_registration]
 }
