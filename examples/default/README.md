@@ -53,9 +53,6 @@ locals {
     dev_center = {
       resource_provider = "Microsoft.DevCenter"
     }
-    devops_infrastructure = {
-      resource_provider = "Microsoft.DevOpsInfrastructure"
-    }
   }
 }
 
@@ -85,6 +82,8 @@ module "dc" {
   resource_group_name = azurerm_resource_group.this.name
   enable_telemetry    = var.enable_telemetry
   dev_center_name     = "devcenter-001"
+
+  depends_on = [azapi_resource_action.resource_provider_registration]
 }
 ```
 
