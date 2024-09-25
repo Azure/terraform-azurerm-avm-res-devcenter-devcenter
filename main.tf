@@ -1,10 +1,3 @@
-# TODO: Replace this dummy resource azurerm_resource_group.TODO with your module resource
-resource "azurerm_resource_group" "this" {
-  location = var.location
-  name     = var.resource_group_name # calling code must supply the name
-  tags     = var.tags
-}
-
 # required AVM resources interfaces
 resource "azurerm_management_lock" "this" {
   count = var.lock != null ? 1 : 0
