@@ -47,9 +47,6 @@ locals {
     dev_center = {
       resource_provider = "Microsoft.DevCenter"
     }
-    devops_infrastructure = {
-      resource_provider = "Microsoft.DevOpsInfrastructure"
-    }
   }
 }
 
