@@ -20,8 +20,6 @@ terraform {
 
 provider "azurerm" {
   features {}
-  subscription_id = "xxxxx-xxxx-xxxx-xxxx-xxxxx"
-  use_cli         = true
 }
 
 provider "azapi" {
