@@ -9,15 +9,11 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.74"
+      version = ">= 3.71, < 5.0.0"
     }
-    modtm = {
-      source  = "azure/modtm"
-      version = "~> 0.3"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "~> 3.5"
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 1.14"
     }
   }
 }
@@ -26,20 +22,9 @@ provider "azurerm" {
   features {}
 }
 
-
-## Section to provide a random Azure region for the resource group
-# This allows us to randomize the region for the resource group.
-module "regions" {
-  source  = "Azure/regions/azurerm"
-  version = "~> 0.3"
+provider "azapi" {
+  use_msi = false
 }
-
-# This allows us to randomize the region for the resource group.
-resource "random_integer" "region_index" {
-  max = length(module.regions.regions) - 1
-  min = 0
-}
-## End of section to provide a random Azure region for the resource group
 
 # This ensures we have unique CAF compliant names for our resources.
 module "naming" {
@@ -47,25 +32,37 @@ module "naming" {
   version = "~> 0.3"
 }
 
-# This is required for resource modules
+locals {
+  resource_providers_to_register = {
+    dev_center = {
+      resource_provider = "Microsoft.DevCenter"
+    }
+  }
+}
+
+data "azurerm_client_config" "this" {}
+
+resource "azapi_resource_action" "resource_provider_registration" {
+  resource_id = "/subscriptions/${data.azurerm_client_config.this.subscription_id}"
+  type        = "Microsoft.Resources/subscriptions@2021-04-01"
+  action      = "providers/${local.resource_providers_to_register.dev_center.resource_provider}/register"
+  method      = "POST"
+}
+
 resource "azurerm_resource_group" "this" {
-  location = module.regions.regions[random_integer.region_index.result].name
+  location = "eastus"
   name     = module.naming.resource_group.name_unique
 }
 
-# This is the module call
-# Do not specify location here due to the randomization above.
-# Leaving location as `null` will cause the module to use the resource group location
-# with a data source.
-module "test" {
+module "dc" {
   source = "../../"
-  # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
+  # source             = "Azure/avm-res-devcenter-devcenter/azurerm"
   # ...
   location            = azurerm_resource_group.this.location
-  name                = "TODO" # TODO update with module.naming.<RESOURCE_TYPE>.name_unique
   resource_group_name = azurerm_resource_group.this.name
+  enable_telemetry    = var.enable_telemetry
+  dev_center_name     = "devcenter-001"
 
-  enable_telemetry = var.enable_telemetry # see variables.tf
 }
 ```
 
@@ -76,18 +73,17 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> 1.5)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (~> 3.74)
+- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 1.14)
 
-- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
-
-- <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71, < 5.0.0)
 
 ## Resources
 
 The following resources are used by this module:
 
+- [azapi_resource_action.resource_provider_registration](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource_action) (resource)
 - [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
-- [random_integer.region_index](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/integer) (resource)
+- [azurerm_client_config.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
@@ -116,23 +112,17 @@ No outputs.
 
 The following Modules are called:
 
+### <a name="module_dc"></a> [dc](#module\_dc)
+
+Source: ../../
+
+Version:
+
 ### <a name="module_naming"></a> [naming](#module\_naming)
 
 Source: Azure/naming/azurerm
 
 Version: ~> 0.3
-
-### <a name="module_regions"></a> [regions](#module\_regions)
-
-Source: Azure/regions/azurerm
-
-Version: ~> 0.3
-
-### <a name="module_test"></a> [test](#module\_test)
-
-Source: ../../
-
-Version:
 
 <!-- markdownlint-disable-next-line MD041 -->
 ## Data Collection
