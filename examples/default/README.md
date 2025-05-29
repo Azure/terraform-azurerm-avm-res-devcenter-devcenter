@@ -7,13 +7,13 @@ This deploys the module in its simplest form.
 terraform {
   required_version = "~> 1.5"
   required_providers {
+    azapi = {
+      source  = "Azure/azapi"
+      version = ">= 2.0.0, < 3.0.0"
+    }
     azurerm = {
       source  = "hashicorp/azurerm"
       version = ">= 3.71, < 5.0.0"
-    }
-    azapi = {
-      source  = "Azure/azapi"
-      version = "~> 1.14"
     }
   }
 }
@@ -56,13 +56,13 @@ resource "azurerm_resource_group" "this" {
 
 module "dc" {
   source = "../../"
+
+  dev_center_name = "devcenter-001"
   # source             = "Azure/avm-res-devcenter-devcenter/azurerm"
   # ...
   location            = azurerm_resource_group.this.location
   resource_group_name = azurerm_resource_group.this.name
   enable_telemetry    = var.enable_telemetry
-  dev_center_name     = "devcenter-001"
-
 }
 ```
 
@@ -73,7 +73,7 @@ The following requirements are needed by this module:
 
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (~> 1.5)
 
-- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 1.14)
+- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (>= 2.0.0, < 3.0.0)
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71, < 5.0.0)
 
