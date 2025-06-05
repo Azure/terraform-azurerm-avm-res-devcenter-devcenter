@@ -37,10 +37,10 @@ locals {
 data "azurerm_client_config" "this" {}
 
 resource "azapi_resource_action" "resource_provider_registration" {
-  resource_id = "/subscriptions/${data.azurerm_client_config.this.subscription_id}"
-  type        = "Microsoft.Resources/subscriptions@2021-04-01"
   action      = "providers/${local.resource_providers_to_register.dev_center.resource_provider}/register"
   method      = "POST"
+  resource_id = "/subscriptions/${data.azurerm_client_config.this.subscription_id}"
+  type        = "Microsoft.Resources/subscriptions@2021-04-01"
 }
 
 resource "azurerm_resource_group" "this" {
