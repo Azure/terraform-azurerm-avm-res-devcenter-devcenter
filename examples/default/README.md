@@ -6,14 +6,15 @@ This deploys the module in its simplest form.
 ```hcl
 terraform {
   required_version = "~> 1.5"
+
   required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = ">= 3.71, < 5.0.0"
-    }
     azapi = {
       source  = "Azure/azapi"
       version = "~> 1.14"
+    }
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 3.71, < 5.0.0"
     }
   }
 }
@@ -43,10 +44,10 @@ locals {
 data "azurerm_client_config" "this" {}
 
 resource "azapi_resource_action" "resource_provider_registration" {
-  resource_id = "/subscriptions/${data.azurerm_client_config.this.subscription_id}"
-  type        = "Microsoft.Resources/subscriptions@2021-04-01"
   action      = "providers/${local.resource_providers_to_register.dev_center.resource_provider}/register"
   method      = "POST"
+  resource_id = "/subscriptions/${data.azurerm_client_config.this.subscription_id}"
+  type        = "Microsoft.Resources/subscriptions@2021-04-01"
 }
 
 resource "azurerm_resource_group" "this" {
@@ -56,13 +57,13 @@ resource "azurerm_resource_group" "this" {
 
 module "dc" {
   source = "../../"
+
+  dev_center_name = "devcenter-001"
   # source             = "Azure/avm-res-devcenter-devcenter/azurerm"
   # ...
   location            = azurerm_resource_group.this.location
   resource_group_name = azurerm_resource_group.this.name
   enable_telemetry    = var.enable_telemetry
-  dev_center_name     = "devcenter-001"
-
 }
 ```
 
