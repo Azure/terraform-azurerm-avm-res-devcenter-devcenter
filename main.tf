@@ -35,6 +35,7 @@ resource "azurerm_dev_center" "this" {
       identity_ids = identity.value.identity_ids
     }
   }
+
   dynamic "timeouts" {
     for_each = var.dev_center_timeouts == null ? [] : [var.dev_center_timeouts]
 
@@ -73,6 +74,7 @@ resource "azurerm_monitor_diagnostic_setting" "this" {
       category_group = enabled_log.value
     }
   }
+
   dynamic "metric" {
     for_each = each.value.metric_categories
 
