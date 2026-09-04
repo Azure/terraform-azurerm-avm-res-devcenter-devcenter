@@ -13,4 +13,3 @@ resource "azurerm_dev_center_gallery" "this" {
     }
   }
 }
-

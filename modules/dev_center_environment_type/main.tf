@@ -14,4 +14,3 @@ resource "azurerm_dev_center_environment_type" "this" {
     }
   }
 }
-

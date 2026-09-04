@@ -1,4 +1,3 @@
-
 resource "azurerm_dev_center_dev_box_definition" "this" {
   dev_center_id      = var.dev_center_dev_box_definition_dev_center_id
   image_reference_id = var.dev_center_dev_box_definition_image_reference_id
@@ -18,4 +17,3 @@ resource "azurerm_dev_center_dev_box_definition" "this" {
     }
   }
 }
-
