@@ -27,7 +27,10 @@ The following requirements are needed by this module:
 
 The following resources are used by this module:
 
+- [azapi_resource.telemetry](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
 - [azurerm_dev_center_environment_type.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/dev_center_environment_type) (resource)
+- [terraform_data.telemetry](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) (resource)
+- [azapi_client_config.telemetry](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
@@ -43,6 +46,12 @@ Type: `string`
 ### <a name="input_dev_center_environment_type_name"></a> [dev\_center\_environment\_type\_name](#input\_dev\_center\_environment\_type\_name)
 
 Description: (Required) Specifies the name of this Dev Center Environment Type. Changing this forces a new resource to be created.
+
+Type: `string`
+
+### <a name="input_location"></a> [location](#input\_location)
+
+Description: The Azure region for this module's resources or telemetry deployment.
 
 Type: `string`
 
@@ -77,6 +86,16 @@ object({
 ```
 
 Default: `null`
+
+### <a name="input_enable_telemetry"></a> [enable\_telemetry](#input\_enable\_telemetry)
+
+Description: This variable controls whether or not telemetry is enabled for the module.  
+For more information see <https://aka.ms/avm/telemetryinfo>.  
+If it is set to false, then no telemetry will be collected.
+
+Type: `bool`
+
+Default: `true`
 
 ## Outputs
 
