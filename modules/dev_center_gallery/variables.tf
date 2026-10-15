@@ -16,6 +16,12 @@ variable "dev_center_gallery_shared_gallery_id" {
   nullable    = false
 }
 
+variable "location" {
+  type        = string
+  description = "The Azure region for this module's resources or telemetry deployment."
+  nullable    = false
+}
+
 variable "dev_center_gallery_timeouts" {
   type = object({
     create = optional(string)
@@ -28,4 +34,15 @@ variable "dev_center_gallery_timeouts" {
  - `delete` - (Defaults to 30 minutes) Used when deleting this Dev Center Gallery.
  - `read` - (Defaults to 5 minutes) Used when retrieving this Dev Center Gallery.
 EOT
+}
+
+variable "enable_telemetry" {
+  type        = bool
+  default     = true
+  description = <<DESCRIPTION
+This variable controls whether or not telemetry is enabled for the module.
+For more information see <https://aka.ms/avm/telemetryinfo>.
+If it is set to false, then no telemetry will be collected.
+DESCRIPTION
+  nullable    = false
 }

@@ -28,6 +28,12 @@ variable "dev_center_dev_box_definition_sku_name" {
   nullable    = false
 }
 
+variable "location" {
+  type        = string
+  description = "The Azure region for this module's resources or telemetry deployment."
+  nullable    = false
+}
+
 variable "dev_center_dev_box_definition_tags" {
   type        = map(string)
   default     = null
@@ -48,4 +54,15 @@ variable "dev_center_dev_box_definition_timeouts" {
  - `read` - (Defaults to 5 minutes) Used when retrieving this Dev Center Dev Box Definition.
  - `update` - (Defaults to 30 minutes) Used when updating this Dev Center Dev Box Definition.
 EOT
+}
+
+variable "enable_telemetry" {
+  type        = bool
+  default     = true
+  description = <<DESCRIPTION
+This variable controls whether or not telemetry is enabled for the module.
+For more information see <https://aka.ms/avm/telemetryinfo>.
+If it is set to false, then no telemetry will be collected.
+DESCRIPTION
+  nullable    = false
 }
