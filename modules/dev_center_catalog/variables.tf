@@ -16,6 +16,12 @@ variable "dev_center_catalog_resource_group_name" {
   nullable    = false
 }
 
+variable "location" {
+  type        = string
+  description = "The Azure region for this module's resources or telemetry deployment."
+  nullable    = false
+}
+
 variable "dev_center_catalog_adogit" {
   type = object({
     branch            = string
@@ -48,4 +54,15 @@ A map describing the dev center catalog GitHub repository.
 - `key_vault_key_url` - (Required) A reference to the Key Vault secret containing a security token to authenticate to a Git repository.
 - `uri` - (Required) The Git URI of the Dev Center Catalog.
   DESCRIPTION
+}
+
+variable "enable_telemetry" {
+  type        = bool
+  default     = true
+  description = <<DESCRIPTION
+This variable controls whether or not telemetry is enabled for the module.
+For more information see <https://aka.ms/avm/telemetryinfo>.
+If it is set to false, then no telemetry will be collected.
+DESCRIPTION
+  nullable    = false
 }
