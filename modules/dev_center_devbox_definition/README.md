@@ -67,12 +67,6 @@ Description: (Required) The name of the SKU for the Dev Center Dev Box Definitio
 
 Type: `string`
 
-### <a name="input_location"></a> [location](#input\_location)
-
-Description: The Azure region for this module's resources or telemetry deployment.
-
-Type: `string`
-
 ## Optional Inputs
 
 The following input variables are optional (have default values):
@@ -114,6 +108,14 @@ If it is set to false, then no telemetry will be collected.
 Type: `bool`
 
 Default: `true`
+
+### <a name="input_location"></a> [location](#input\_location)
+
+Description: The Azure region for this module's resources or telemetry deployment.
+
+Type: `string`
+
+Default: `null`
 
 ## Outputs
 
