@@ -41,6 +41,11 @@ resource "azapi_resource" "this" {
   location = "eastus"
 }
 
+moved {
+  from = azurerm_resource_group.this
+  to   = azapi_resource.this
+}
+
 module "dc" {
   source = "../../"
 

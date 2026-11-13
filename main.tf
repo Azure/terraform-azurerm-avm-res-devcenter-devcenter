@@ -62,7 +62,7 @@ resource "azapi_resource" "this" {
 
     content {
       type         = identity.value.type
-      identity_ids = identity.value.identity_ids
+      identity_ids = identity.value.identity_ids != null ? identity.value.identity_ids : []
     }
   }
 
