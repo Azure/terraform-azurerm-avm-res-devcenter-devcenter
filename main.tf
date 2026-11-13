@@ -1,31 +1,59 @@
 # required AVM resources interfaces
-resource "azurerm_management_lock" "this" {
-  count = var.lock != null ? 1 : 0
-
-  lock_level = var.lock.kind
-  name       = coalesce(var.lock.name, "lock-${var.lock.kind}")
-  scope      = azurerm_dev_center.this.id # TODO: Replace with your azurerm resource name
-  notes      = var.lock.kind == "CanNotDelete" ? "Cannot delete the resource or its child resources." : "Cannot delete or modify the resource or its child resources."
+moved {
+  from = azurerm_management_lock.this
+  to   = azapi_resource.lock
 }
 
-resource "azurerm_role_assignment" "this" {
-  for_each = var.role_assignments
-
-  principal_id                           = each.value.principal_id
-  scope                                  = azurerm_dev_center.this.id # TODO: Replace this dummy resource azurerm_resource_group.TODO with your module resource
-  condition                              = each.value.condition
-  condition_version                      = each.value.condition_version
-  delegated_managed_identity_resource_id = each.value.delegated_managed_identity_resource_id
-  role_definition_id                     = strcontains(lower(each.value.role_definition_id_or_name), lower(local.role_definition_resource_substring)) ? each.value.role_definition_id_or_name : null
-  role_definition_name                   = strcontains(lower(each.value.role_definition_id_or_name), lower(local.role_definition_resource_substring)) ? null : each.value.role_definition_id_or_name
-  skip_service_principal_aad_check       = each.value.skip_service_principal_aad_check
+resource "azapi_resource" "lock" {
+  type      = "Microsoft.Authorization/locks@2020-05-01"
+  name      = coalesce(var.lock.name, "lock-${var.lock.kind}")
+  parent_id = azapi_resource.this.id
+  body = {
+    properties = {
+      level = var.lock.kind
+      notes = var.lock.kind == "CanNotDelete" ? "Cannot delete the resource or its child resources." : "Cannot delete or modify the resource or its child resources."
+    }
+  }
 }
 
-resource "azurerm_dev_center" "this" {
-  location            = var.location
-  name                = var.dev_center_name
-  resource_group_name = var.resource_group_name
-  tags                = var.tags
+moved {
+  from = azurerm_role_assignment.this
+  to   = azapi_resource.role_assignments
+}
+
+resource "azapi_resource" "role_assignments" {
+  for_each = local.role_assignments
+
+  type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
+  name      = each.value.name
+  parent_id = azapi_resource.this.id
+  body = {
+    properties = {
+      condition                          = each.value.properties.condition
+      conditionVersion                   = each.value.properties.condition_version
+      delegatedManagedIdentityResourceId = each.value.properties.delegated_managed_identity_resource_id
+      description                        = each.value.properties.description
+      principalId                        = each.value.properties.principal_id
+      principalType                      = each.value.properties.principal_type
+      roleDefinitionId                   = each.value.properties.role_definition_id_or_name
+    }
+  }
+}
+
+moved {
+  from = azurerm_dev_center.this
+  to   = azapi_resource.this
+}
+
+locals {
+  resource_group_name = split("/", var.parent_id)[4]
+}
+
+resource "azapi_resource" "this" {
+  type      = "Microsoft.DevCenter/devCenters@2025-02-01"
+  location  = var.location
+  name      = var.dev_center_name
+  parent_id = local.resource_group_name
 
   dynamic "identity" {
     for_each = var.dev_center_identity == null ? [] : [var.dev_center_identity]
@@ -35,6 +63,9 @@ resource "azurerm_dev_center" "this" {
       identity_ids = identity.value.identity_ids
     }
   }
+
+  body = {}
+  tags = var.tags
 
   dynamic "timeouts" {
     for_each = var.dev_center_timeouts == null ? [] : [var.dev_center_timeouts]
@@ -48,38 +79,61 @@ resource "azurerm_dev_center" "this" {
   }
 }
 
-resource "azurerm_monitor_diagnostic_setting" "this" {
+locals {
+  resource_block = {
+    id                                            = azapi_resource.this.id
+    name                                          = azapi_resource.this.name
+    resource_group_name                           = local.resource_group_name
+    location                                      = azapi_resource.this.location
+    user_assigned_managed_identity_principal_id   = try(var.dev_center_identity.type == "UserAssigned", false) ? azapi_resource.this.identity[0].principal_id : null
+    system_assigned_managed_identity_principal_id = try(var.dev_center_identity.type == "SystemAssigned", false) ? azapi_resource.this.identity[0].principal_id : null
+    dev_center_uri                                = azapi_resource.this.properties.dev_center_uri
+  }
+}
+
+resource "azapi_resource" "diagnostic_settings" {
   for_each = var.diagnostic_settings
 
-  name                           = each.value.name != null ? each.value.name : "diag-${var.dev_center_name}"
-  target_resource_id             = azurerm_dev_center.this.id
-  eventhub_authorization_rule_id = each.value.event_hub_authorization_rule_resource_id
-  eventhub_name                  = each.value.event_hub_name
-  log_analytics_destination_type = each.value.log_analytics_destination_type
-  log_analytics_workspace_id     = each.value.workspace_resource_id
-  partner_solution_id            = each.value.marketplace_partner_resource_id
-  storage_account_id             = each.value.storage_account_resource_id
+  type                   = "Microsoft.Insights/diagnosticSettings@2021-05-01-preview"
+  name                   = each.value.name != null ? each.value.name : "diag-${var.dev_center_name}"
+  parent_id              = azapi_resource.this.id
+  ignore_null_property   = true
+  response_export_values = []
 
-  dynamic "enabled_log" {
-    for_each = each.value.log_categories
-
-    content {
-      category = enabled_log.value
+  body = {
+    properties = {
+      eventHubAuthorizationRuleId = each.value.event_hub_authorization_rule_resource_id
+      eventHubName                = each.value.event_hub_name
+      logAnalyticsDestinationType = each.value.log_analytics_destination_type
+      workspaceId                 = each.value.workspace_resource_id
+      marketplacePartnerId        = each.value.marketplace_partner_resource_id
+      storageAccountId            = each.value.storage_account_resource_id
+      logs = concat(
+        [for category in each.value.log_categories : {
+          category = category
+          enabled  = true
+        }],
+        [for group in each.value.log_groups : {
+          categoryGroup = group
+          enabled       = true
+        }]
+      )
+      metrics = [for category in each.value.metric_categories : {
+        category = category
+        enabled  = true
+      }]
     }
   }
-  dynamic "enabled_log" {
-    for_each = each.value.log_groups
 
-    content {
-      category_group = enabled_log.value
+  lifecycle {
+    precondition {
+      condition     = length(each.value.log_categories) + length(each.value.log_groups) + length(each.value.metric_categories) > 0
+      error_message = "Each diagnostic setting must enable at least one log category, log group, or metric category."
     }
   }
+}
 
-  dynamic "metric" {
-    for_each = each.value.metric_categories
-
-    content {
-      category = metric.value
-    }
-  }
+moved {
+  from = azurerm_monitor_diagnostic_setting.this
+  to   = azapi_resource.diagnostic_settings
 }
