@@ -2,7 +2,7 @@
 locals {
   role_definition_resource_substring = "/providers/Microsoft.Authorization/roleDefinitions"
 
-  role_assignments = [for ra in var.role_assignments : {
+  role_assignments = { for key, ra in var.role_assignments : key => {
     name = uuidv5(
       "11fb06fb-712d-4ddd-98c7-e71bbd588830",
       join("-", [
@@ -20,7 +20,7 @@ locals {
       description                            = ra.description
       principal_type                         = ra.principal_type
     }
-  }]
+  } }
 
   diagnostic_settings_logs_categories   = [for ds in var.diagnostic_settings : ds.log_categories]
   diagnostic_settings_log_groups        = [for ds in var.diagnostic_settings : ds.log_groups]

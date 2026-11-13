@@ -5,6 +5,8 @@ moved {
 }
 
 resource "azapi_resource" "lock" {
+  count = var.lock != null ? 1 : 0
+
   type      = "Microsoft.Authorization/locks@2020-05-01"
   name      = coalesce(var.lock.name, "lock-${var.lock.kind}")
   parent_id = azapi_resource.this.id
@@ -53,7 +55,7 @@ resource "azapi_resource" "this" {
   type      = "Microsoft.DevCenter/devCenters@2025-02-01"
   location  = var.location
   name      = var.dev_center_name
-  parent_id = local.resource_group_name
+  parent_id = var.parent_id
 
   dynamic "identity" {
     for_each = var.dev_center_identity == null ? [] : [var.dev_center_identity]
@@ -64,8 +66,9 @@ resource "azapi_resource" "this" {
     }
   }
 
-  body = {}
-  tags = var.tags
+  body                   = {}
+  tags                   = var.tags
+  response_export_values = ["properties.devCenterUri"]
 
   dynamic "timeouts" {
     for_each = var.dev_center_timeouts == null ? [] : [var.dev_center_timeouts]
@@ -87,7 +90,7 @@ locals {
     location                                      = azapi_resource.this.location
     user_assigned_managed_identity_principal_id   = try(var.dev_center_identity.type == "UserAssigned", false) ? azapi_resource.this.identity[0].principal_id : null
     system_assigned_managed_identity_principal_id = try(var.dev_center_identity.type == "SystemAssigned", false) ? azapi_resource.this.identity[0].principal_id : null
-    dev_center_uri                                = azapi_resource.this.properties.dev_center_uri
+    dev_center_uri                                = azapi_resource.this.output.properties.devCenterUri
   }
 }
 
