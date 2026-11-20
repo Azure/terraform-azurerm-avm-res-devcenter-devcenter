@@ -4,6 +4,18 @@
 
 This is a template repo for Terraform Azure Verified Modules.
 
+## Diagnostic settings migration
+
+Diagnostic settings are managed with AzAPI while retaining the existing
+`diagnostic_settings` input shape, including `log_categories`, `log_groups`, and
+`metric_categories`. Destinations and the default diagnostic setting name are
+unchanged. At least one log category, log group, or metric category must be enabled.
+
+The `moved` block targets `azapi_resource.diagnostic_settings`. Before upgrading an
+existing deployment, back up the Terraform state and check that the migration plan
+has no unintended destroys or replacements. State conversion must be verified
+against the deployed provider versions; the block alone does not prove compatibility.
+
 Things to do:
 
 1. Set up a GitHub repo environment called `test`.
@@ -29,17 +41,15 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71, < 5.0.0)
-
 ## Resources
 
 The following resources are used by this module:
 
+- [azapi_resource.diagnostic_settings](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.lock](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
+- [azapi_resource.role_assignments](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
 - [azapi_resource.telemetry](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
-- [azurerm_dev_center.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/dev_center) (resource)
-- [azurerm_management_lock.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/management_lock) (resource)
-- [azurerm_monitor_diagnostic_setting.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/monitor_diagnostic_setting) (resource)
-- [azurerm_role_assignment.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) (resource)
+- [azapi_resource.this](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
 - [terraform_data.telemetry](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) (resource)
 - [azapi_client_config.telemetry](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
 
@@ -60,9 +70,9 @@ Description: Azure region where the resource should be deployed.
 
 Type: `string`
 
-### <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name)
+### <a name="input_parent_id"></a> [parent\_id](#input\_parent\_id)
 
-Description: The resource group where the resources will be deployed.
+Description: (Required) The parent resource ID where the Dev Center is created. This should be the ID of the resource group. Changing this forces a new resource to be created.
 
 Type: `string`
 
@@ -114,7 +124,7 @@ Default: `null`
 
 ### <a name="input_diagnostic_settings"></a> [diagnostic\_settings](#input\_diagnostic\_settings)
 
-Description:   A map of diagnostic settings to create on the Key Vault. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
+Description:     A map of diagnostic settings to create on the Dev Center. The map key is deliberately arbitrary to avoid issues where map keys maybe unknown at plan time.
 
   - `name` - (Optional) The name of the diagnostic setting. One will be generated if not set, however this will not be unique if you want to create multiple diagnostic setting resources.
   - `log_categories` - (Optional) A set of log categories to send to the log analytics workspace. Defaults to `[]`.
@@ -196,7 +206,6 @@ map(object({
     role_definition_id_or_name             = string
     principal_id                           = string
     description                            = optional(string, null)
-    skip_service_principal_aad_check       = optional(bool, false)
     condition                              = optional(string, null)
     condition_version                      = optional(string, null)
     delegated_managed_identity_resource_id = optional(string, null)
@@ -229,6 +238,14 @@ Description: This is the full output for the resource.
 ### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
 
 Description: value of the resource id
+
+### <a name="output_system_assigned_mi_principal_id"></a> [system\_assigned\_mi\_principal\_id](#output\_system\_assigned\_mi\_principal\_id)
+
+Description: The principal ID of system assigned managed identity on the Dev Center, when `var.dev_center_identity` is `null` or `var.dev_center_identity.type` is not `SystemAssigned` this output is `null`.
+
+### <a name="output_user_assigned_mi_principal_id"></a> [user\_assigned\_mi\_principal\_id](#output\_user\_assigned\_mi\_principal\_id)
+
+Description: The principal ID of user assigned managed identity on the Dev Center, when `var.dev_center_identity` is `null` or `var.dev_center_identity.type` is not `UserAssigned` this output is `null`.
 
 ## Modules
 

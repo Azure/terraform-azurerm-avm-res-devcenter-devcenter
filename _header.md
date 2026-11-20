@@ -2,6 +2,18 @@
 
 This is a template repo for Terraform Azure Verified Modules.
 
+## Diagnostic settings migration
+
+Diagnostic settings are managed with AzAPI while retaining the existing
+`diagnostic_settings` input shape, including `log_categories`, `log_groups`, and
+`metric_categories`. Destinations and the default diagnostic setting name are
+unchanged. At least one log category, log group, or metric category must be enabled.
+
+The `moved` block targets `azapi_resource.diagnostic_settings`. Before upgrading an
+existing deployment, back up the Terraform state and check that the migration plan
+has no unintended destroys or replacements. State conversion must be verified
+against the deployed provider versions; the block alone does not prove compatibility.
+
 Things to do:
 
 1. Set up a GitHub repo environment called `test`.

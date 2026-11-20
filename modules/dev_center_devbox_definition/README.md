@@ -10,6 +10,16 @@ This module supports:
 
 - Create Dev Box Definition
 
+The Dev Box Definition is managed with AzAPI using the existing input variables.
+The Dev Center ID is its parent scope; the image reference and SKU are sent as
+`properties.imageReference.id` and `properties.sku.name`. Custom timeouts remain
+configurable through `dev_center_dev_box_definition_timeouts`.
+
+For existing deployments, a `moved` block targets `azapi_resource.this`. Back up
+Terraform state before upgrading and verify that the migration plan has no
+unintended destroys or replacements. State conversion must be tested against the
+deployed provider versions before applying.
+
 "Major version Zero (0.y.z) is for initial development. Anything MAY change at any time. The module SHOULD NOT be considered stable till at least it is major version one (1.0.0) or greater. Changes will always be via new versions being published and no changes will be made to existing published versions. For more details please go to <https://semver.org/>"
 
 <!-- markdownlint-disable MD033 -->
@@ -21,14 +31,12 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71, < 5.0.0)
-
 ## Resources
 
 The following resources are used by this module:
 
 - [azapi_resource.telemetry](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
-- [azurerm_dev_center_dev_box_definition.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/dev_center_dev_box_definition) (resource)
+- [azapi_resource.this](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
 - [terraform_data.telemetry](https://registry.terraform.io/providers/hashicorp/terraform/latest/docs/resources/data) (resource)
 - [azapi_client_config.telemetry](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
 
@@ -123,7 +131,7 @@ The following outputs are exported:
 
 ### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
 
-Description: The ID of the Dev Center Catalog.
+Description: The ID of the Dev Center Dev Box Definition.
 
 ## Modules
 

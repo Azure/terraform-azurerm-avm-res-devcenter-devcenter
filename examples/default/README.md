@@ -13,17 +13,8 @@ terraform {
       source  = "Azure/azapi"
       version = "~> 2.4"
     }
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = ">= 3.71, < 5.0.0"
-    }
   }
 }
-
-provider "azurerm" {
-  features {}
-}
-
 provider "azapi" {
   use_msi = false
 }
@@ -42,18 +33,19 @@ locals {
   }
 }
 
-data "azurerm_client_config" "this" {}
+data "azapi_client_config" "this" {}
 
 resource "azapi_resource_action" "resource_provider_registration" {
   action      = "providers/${local.resource_providers_to_register.dev_center.resource_provider}/register"
   method      = "POST"
-  resource_id = "/subscriptions/${data.azurerm_client_config.this.subscription_id}"
+  resource_id = "/subscriptions/${data.azapi_client_config.this.subscription_id}"
   type        = "Microsoft.Resources/subscriptions@2021-04-01"
 }
+resource "azapi_resource" "this" {
+  type = "Microsoft.Resources/resourceGroups@2025-04-01"
 
-resource "azurerm_resource_group" "this" {
-  location = "eastus"
   name     = module.naming.resource_group.name_unique
+  location = "eastus"
 }
 
 module "dc" {
@@ -62,9 +54,9 @@ module "dc" {
   dev_center_name = "devcenter-001"
   # source             = "Azure/avm-res-devcenter-devcenter/azurerm"
   # ...
-  location            = azurerm_resource_group.this.location
-  resource_group_name = azurerm_resource_group.this.name
-  enable_telemetry    = var.enable_telemetry
+  location         = azapi_resource.this.location
+  parent_id        = azapi_resource.this.id
+  enable_telemetry = var.enable_telemetry
 }
 ```
 
@@ -77,15 +69,13 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.4)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.71, < 5.0.0)
-
 ## Resources
 
 The following resources are used by this module:
 
+- [azapi_resource.this](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource) (resource)
 - [azapi_resource_action.resource_provider_registration](https://registry.terraform.io/providers/Azure/azapi/latest/docs/resources/resource_action) (resource)
-- [azurerm_resource_group.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/resource_group) (resource)
-- [azurerm_client_config.this](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/client_config) (data source)
+- [azapi_client_config.this](https://registry.terraform.io/providers/Azure/azapi/latest/docs/data-sources/client_config) (data source)
 
 <!-- markdownlint-disable MD013 -->
 ## Required Inputs
